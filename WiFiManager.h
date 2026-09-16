@@ -17,16 +17,17 @@ struct WiFiNetwork {
 };
 
 WiFiNetwork wifiNetworks[MAX_WIFI_NETWORKS];
+
 int wifiNetworkCount = 0;
 
 bool setupAPActive = false;
 
-// ==================================================
+
+// ============================================================
 // RSSI
-// ==================================================
+// ============================================================
 
 int getWiFiRSSI() {
-
   if (WiFi.status() != WL_CONNECTED) {
     return 0;
   }
@@ -34,32 +35,28 @@ int getWiFiRSSI() {
   return WiFi.RSSI();
 }
 
-// ==================================================
+
+// ============================================================
 // LITTLEFS
-// ==================================================
+// ============================================================
 
 bool initWiFiStorage() {
-
   if (LittleFS.begin()) {
-    Serial.println("LittleFS ready");
     return true;
   }
 
-  Serial.println("LittleFS mount failed");
   return false;
 }
 
-// ==================================================
-// LOAD WIFI CONFIGURATION
-// ==================================================
+
+// ============================================================
+// LOAD CONFIGURATION
+// ============================================================
 
 bool loadWiFiConfiguration() {
-
   wifiNetworkCount = 0;
 
   if (!LittleFS.exists(WIFI_CONFIG_FILE)) {
-
-    Serial.println("No WiFi configuration found");
     return false;
   }
 
@@ -69,8 +66,6 @@ bool loadWiFiConfiguration() {
   );
 
   if (!file) {
-
-    Serial.println("Unable to open WiFi configuration");
     return false;
   }
 
@@ -78,7 +73,6 @@ bool loadWiFiConfiguration() {
     file.available() &&
     wifiNetworkCount < MAX_WIFI_NETWORKS
   ) {
-
     String ssid =
       file.readStringUntil('\n');
 
@@ -89,7 +83,6 @@ bool loadWiFiConfiguration() {
     password.trim();
 
     if (ssid.length() > 0) {
-
       wifiNetworks[wifiNetworkCount].ssid =
         ssid;
 
@@ -102,35 +95,25 @@ bool loadWiFiConfiguration() {
 
   file.close();
 
-  Serial.print("Loaded WiFi networks: ");
-  Serial.println(wifiNetworkCount);
-
   return wifiNetworkCount > 0;
 }
 
-// ==================================================
-// SAVE WIFI CONFIGURATION
-// ==================================================
+
+// ============================================================
+// SAVE CONFIGURATION
+// ============================================================
 
 bool saveWiFiConfiguration() {
-
   File file = LittleFS.open(
     WIFI_CONFIG_FILE,
     "w"
   );
 
   if (!file) {
-
-    Serial.println("Unable to save WiFi configuration");
     return false;
   }
 
-  for (
-    int i = 0;
-    i < wifiNetworkCount;
-    i++
-  ) {
-
+  for (int i = 0; i < wifiNetworkCount; i++) {
     file.println(
       wifiNetworks[i].ssid
     );
@@ -142,21 +125,19 @@ bool saveWiFiConfiguration() {
 
   file.close();
 
-  Serial.println("WiFi configuration saved");
-
   return true;
 }
 
-// ==================================================
-// SET WIFI NETWORK
-// ==================================================
+
+// ============================================================
+// SET NETWORK
+// ============================================================
 
 bool setWiFiNetwork(
   int index,
   const String &ssid,
   const String &password
 ) {
-
   if (
     index < 0 ||
     index >= MAX_WIFI_NETWORKS
@@ -174,10 +155,7 @@ bool setWiFiNetwork(
   wifiNetworks[index].password =
     password;
 
-  if (
-    index >= wifiNetworkCount
-  ) {
-
+  if (index >= wifiNetworkCount) {
     wifiNetworkCount =
       index + 1;
   }
@@ -185,14 +163,12 @@ bool setWiFiNetwork(
   return true;
 }
 
-// ==================================================
-// DELETE WIFI NETWORK
-// ==================================================
 
-bool deleteWiFiNetwork(
-  int index
-) {
+// ============================================================
+// DELETE NETWORK
+// ============================================================
 
+bool deleteWiFiNetwork(int index) {
   if (
     index < 0 ||
     index >= wifiNetworkCount
@@ -205,38 +181,30 @@ bool deleteWiFiNetwork(
     i < wifiNetworkCount - 1;
     i++
   ) {
-
     wifiNetworks[i] =
       wifiNetworks[i + 1];
   }
 
-  wifiNetworks[
-    wifiNetworkCount - 1
-  ].ssid = "";
+  wifiNetworks[wifiNetworkCount - 1].ssid =
+    "";
 
-  wifiNetworks[
-    wifiNetworkCount - 1
-  ].password = "";
+  wifiNetworks[wifiNetworkCount - 1].password =
+    "";
 
   wifiNetworkCount--;
 
   return saveWiFiConfiguration();
 }
 
-// ==================================================
-// START SETUP ACCESS POINT
-// ==================================================
+
+// ============================================================
+// SETUP ACCESS POINT
+// ============================================================
 
 void startSetupAccessPoint() {
-
   String apSSID =
     String(BOARD_ID) +
     String(SETUP_AP_SUFFIX);
-
-  Serial.println();
-  Serial.println("================================");
-  Serial.println("WIFI CONFIGURATION MODE");
-  Serial.println("================================");
 
   WiFi.mode(WIFI_AP);
 
@@ -247,19 +215,21 @@ void startSetupAccessPoint() {
 
   setupAPActive = true;
 
-  Serial.print("AP SSID: ");
-  Serial.println(apSSID);
+  Serial.print("WIFI | SETUP_AP | SSID=");
+  Serial.print(apSSID);
 
-  Serial.print("AP IP: ");
-  Serial.println(WiFi.softAPIP());
+  Serial.print(" | IP=");
+  Serial.println(
+    WiFi.softAPIP()
+  );
 }
 
-// ==================================================
-// STOP SETUP ACCESS POINT
-// ==================================================
+
+// ============================================================
+// STOP ACCESS POINT
+// ============================================================
 
 void stopSetupAccessPoint() {
-
   if (!setupAPActive) {
     return;
   }
@@ -268,18 +238,17 @@ void stopSetupAccessPoint() {
 
   setupAPActive = false;
 
-  Serial.println("Setup AP stopped");
+  Serial.println("WIFI | SETUP_AP | STOP");
 }
 
-// ==================================================
-// CONNECT TO SAVED WIFI
-// ==================================================
+
+// ============================================================
+// CONNECT WIFI
+// ============================================================
 
 bool connectWiFi() {
-
   if (wifiNetworkCount <= 0) {
-
-    Serial.println("No WiFi network configured");
+    Serial.println("WIFI | NO_CONFIG");
     return false;
   }
 
@@ -290,15 +259,15 @@ bool connectWiFi() {
     i < wifiNetworkCount;
     i++
   ) {
+    Serial.print("WIFI | TRY=");
+    Serial.print(i + 1);
 
-    Serial.println();
-    Serial.print("Trying WiFi: ");
+    Serial.print(" | SSID=");
     Serial.println(
       wifiNetworks[i].ssid
     );
 
     WiFi.disconnect();
-
     delay(300);
 
     WiFi.begin(
@@ -311,47 +280,48 @@ bool connectWiFi() {
 
     while (
       WiFi.status() != WL_CONNECTED &&
-      millis() - start < WIFI_CONNECT_TIMEOUT
+      millis() - start <
+        WIFI_CONNECT_TIMEOUT
     ) {
-
       delay(250);
-
-      Serial.print(".");
     }
 
-    Serial.println();
-
     if (
-      WiFi.status() == WL_CONNECTED
+      WiFi.status() ==
+      WL_CONNECTED
     ) {
-
-      Serial.println("WiFi connected");
-
-      Serial.print("SSID: ");
-      Serial.println(WiFi.SSID());
-
-      Serial.print("IP: ");
-      Serial.println(WiFi.localIP());
-
       setupAPActive = false;
+
+      Serial.print("WIFI | CONNECTED | SSID=");
+      Serial.print(
+        WiFi.SSID()
+      );
+
+      Serial.print(" | IP=");
+      Serial.println(
+        WiFi.localIP()
+      );
 
       return true;
     }
 
-    Serial.println("Connection failed");
+    Serial.print("WIFI | FAIL | SSID=");
+    Serial.println(
+      wifiNetworks[i].ssid
+    );
   }
 
-  Serial.println("All WiFi networks failed");
+  Serial.println("WIFI | ALL_FAIL");
 
   return false;
 }
 
-// ==================================================
-// WIFI CONFIGURED?
-// ==================================================
+
+// ============================================================
+// CONFIGURATION STATUS
+// ============================================================
 
 bool isWiFiConfigured() {
-
   return wifiNetworkCount > 0;
 }
 

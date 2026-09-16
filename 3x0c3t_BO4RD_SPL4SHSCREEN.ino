@@ -8,185 +8,68 @@
 #include "ScreenLoading.h"
 #include "WebServer.h"
 
-// ==================================================
-// TFT
-// ==================================================
-
-TFT_eSPI tft =
-TFT_eSPI();
-
-// ==================================================
-// SETUP
-// ==================================================
+TFT_eSPI tft = TFT_eSPI();
 
 void setup() {
+  Serial.begin(115200);
+  delay(100);
 
-Serial.begin(
-115200
-);
+  Serial.println();
+  Serial.println("BOOT | 3x0c3t BO4RD");
 
-delay(100);
+  // === TFT ===
+  tft.init();
+  tft.setRotation(2);
 
-Serial.println();
-Serial.println(
-"================================"
-);
-Serial.println(
-"3x0c3t BO4RD"
-);
-Serial.println(
-"SPL4SHSCREEN"
-);
-Serial.println(
-"================================"
-);
+  Serial.println("TFT | READY | ROT=2");
 
-// ==================================================
-// TFT
-// ==================================================
+  // === SPLASH ===
+  drawScreenSplash(tft);
+  Serial.println("SPLASH | READY");
+  delay(1500);
 
-tft.init();
+  // === BOARD ===
+  drawScreenBoard(tft);
+  Serial.println("BOARD | READY");
+  delay(4000);
 
-// ROTATION 2
-tft.setRotation(2);
+  // === LITTLEFS ===
+  if (initWiFiStorage()) {
+    Serial.println("FS | READY");
+  } else {
+    Serial.println("FS | ERROR");
+  }
 
-// ==================================================
-// SPLASH
-// ==================================================
+  // === WIFI CONFIGURATION ===
+  loadWiFiConfiguration();
 
-drawScreenSplash(
-tft
-);
+  Serial.print("WIFI | CONFIG=");
+  Serial.println(wifiNetworkCount);
 
-delay(1500);
+  // === WIFI CONNECTION ===
+  drawScreenLoading(tft, "CONNECTING");
 
-// ==================================================
-// BOARD
-// ==================================================
+  bool connected = false;
 
-drawScreenBoard(
-tft
-);
+  if (isWiFiConfigured()) {
+    connected = connectWiFi();
+  }
 
-delay(4000);
+  // === WIFI RESULT ===
+  if (connected) {
+    drawScreenLoading(tft, "CONNECTED");
+  } else {
+    startSetupAccessPoint();
+    drawScreenLoading(tft, "SETUP_AP");
+  }
 
-// ==================================================
-// LITTLEFS
-// ==================================================
+  // === WEB SERVER ===
+  startWebServer();
 
-initWiFiStorage();
-
-// ==================================================
-// LOAD WIFI CONFIGURATION
-// ==================================================
-
-loadWiFiConfiguration();
-
-// ==================================================
-// WIFI LOADING SCREEN
-// ==================================================
-
-drawScreenLoading(
-tft
-);
-
-// ==================================================
-// START CONFIGURATION AP
-// ==================================================
-
-if (
-!isWiFiConfigured()
-) {
-
-startSetupAccessPoint();
-
-// Update loading screen
-drawScreenLoading(
-  tft
-);
-
+  Serial.println("HTTP | READY | PORT=80");
 }
-
-// ==================================================
-// START WEB SERVER
-// ==================================================
-
-startWebServer();
-
-Serial.println();
-
-if (
-setupAPActive
-) {
-
-Serial.println(
-  "================================"
-);
-
-Serial.println(
-  "CONFIGURATION MODE ACTIVE"
-);
-
-Serial.print(
-  "SSID: "
-);
-
-Serial.print(
-  BOARD_ID
-);
-
-Serial.println(
-  SETUP_AP_SUFFIX
-);
-
-Serial.println(
-  "IP: 192.168.4.1"
-);
-
-Serial.println(
-  "================================"
-);
-
-} else {
-
-Serial.println(
-  "================================"
-);
-
-Serial.println(
-  "WIFI MODE ACTIVE"
-);
-
-Serial.print(
-  "SSID: "
-);
-
-Serial.println(
-  WiFi.SSID()
-);
-
-Serial.print(
-  "IP: "
-);
-
-Serial.println(
-  WiFi.localIP()
-);
-
-Serial.println(
-  "================================"
-);
-
-}
-}
-
-// ==================================================
-// LOOP
-// ==================================================
 
 void loop() {
-
-handleWebServer();
-
-delay(2);
+  handleWebServer();
+  delay(2);
 }
