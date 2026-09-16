@@ -1,6 +1,7 @@
 #include <TFT_eSPI.h>
-#include "SplashScreen.h"
-#include "WiFi.h"
+
+#include "ScreenSplash.h"
+#include "ScreenLoading.h"
 
 // === TFT ===
 
@@ -17,13 +18,15 @@ void setup() {
   tft.init();
   tft.setRotation(2);
 
-  // Splash screen
-  drawSplashScreen(tft);
+  // === SCREEN SPLASH ===
+
+  drawScreenSplash(tft);
 
   delay(1500);
 
-  // WiFi
-  initWiFi(tft);
+  // === SCREEN LOADING ===
+
+  drawScreenLoading(tft);
 }
 
 // === LOOP ===

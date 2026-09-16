@@ -1,28 +1,27 @@
-#ifndef SPLASHSCREEN_H
-#define SPLASHSCREEN_H
+#ifndef SCREEN_SPLASH_H
+#define SCREEN_SPLASH_H
 
 #include <TFT_eSPI.h>
 
-// === SPLASH SCREEN ===
+// === SCREEN SPLASH ===
 
-void drawSplashScreen(TFT_eSPI &tft) {
+void drawScreenSplash(TFT_eSPI &tft) {
 
-  // Dimensions écran
   const int16_t width = tft.width();
   const int16_t height = tft.height();
 
-  // Centre écran
   const int16_t centerX = width / 2;
   const int16_t centerY = height / 2;
 
   // Fond
   tft.fillScreen(TFT_BLACK);
 
-  // Configuration texte
+  // Texte centré
   tft.setTextDatum(MC_DATUM);
 
   // Logo
   tft.setTextColor(TFT_CYAN, TFT_BLACK);
+
   tft.drawString(
     "-3xØc3t-",
     centerX,
@@ -32,6 +31,7 @@ void drawSplashScreen(TFT_eSPI &tft) {
 
   // Nom carte
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
+
   tft.drawString(
     "BO4RD",
     centerX,
@@ -39,8 +39,9 @@ void drawSplashScreen(TFT_eSPI &tft) {
     2
   );
 
-  // Fonction
+  // Nom écran
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
+
   tft.drawString(
     "SPL4SHSCREEN",
     centerX,
@@ -48,7 +49,7 @@ void drawSplashScreen(TFT_eSPI &tft) {
     2
   );
 
-  // Barre décorative
+  // Barre de progression
   tft.drawRect(
     20,
     height - 35,
@@ -57,8 +58,12 @@ void drawSplashScreen(TFT_eSPI &tft) {
     TFT_CYAN
   );
 
-  // Animation simple de progression
-  for (int16_t x = 22; x < width - 42; x += 4) {
+  // Animation
+  for (
+    int16_t x = 22;
+    x < width - 42;
+    x += 4
+  ) {
 
     tft.fillRect(
       x,
