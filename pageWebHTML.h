@@ -1,194 +1,159 @@
 #ifndef PAGE_WEB_HTML_H
 #define PAGE_WEB_HTML_H
 
-// ==================================================
-// WEB PAGE HTML
-// ==================================================
-
 const char PAGE_WEB_HTML[] PROGMEM = R"rawliteral(
 
 <!DOCTYPE html>
+
 <html lang="fr">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>3x0c3t BO4RD</title>
-
-<link
-  rel="stylesheet"
-  href="/style.css"
->
-
+<link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
 <header>
-
-<div class="logo">
--3xØc3t-
-</div>
-
-<div class="title">
-BO4RD
-</div>
-
-<div class="subtitle">
-CONTROL PANEL
-</div>
-
+  <div class="brand">
+    <span class="logo">-3xØc3t-</span>
+    <span class="separator">/</span>
+    <span class="board-title">BO4RD</span>
+  </div>
+  <div class="subtitle">CONTROL PANEL</div>
 </header>
 
 <main>
 
-<section class="panel">
-
-<h2>STATUS</h2>
+  <section class="panel status-panel">
+    <div class="panel-title">STATUS</div>
 
 <div class="status-grid">
 
-<div>
-<span>BOARD</span>
-<strong id="board">---</strong>
-</div>
+  <div class="info-box">
+    <span>BOARD</span>
+    <strong id="board">---</strong>
+  </div>
 
-<div>
-<span>SSID</span>
-<strong id="connectedSSID">---</strong>
-</div>
+  <div class="info-box">
+    <span>SSID</span>
+    <strong id="connectedSSID">---</strong>
+  </div>
 
-<div>
-<span>IP</span>
-<strong id="ip">---</strong>
-</div>
+  <div class="info-box">
+    <span>IP</span>
+    <strong id="ip">---</strong>
+  </div>
 
-<div>
-<span>RSSI</span>
-<strong id="rssi">---</strong>
-</div>
-
-</div>
-
-<div
-id="connectionStatus"
-class="status offline"
->
-OFFLINE
-</div>
-
-</section>
-
-<section class="panel">
-
-<div class="panel-header">
-
-<h2>WIFI NETWORKS</h2>
-
-<button onclick="scanWiFi()">
-SCAN
-</button>
+  <div class="info-box">
+    <span>RSSI</span>
+    <strong id="rssi">---</strong>
+  </div>
 
 </div>
 
-<div
-id="wifiList"
-class="wifi-list"
->
+<div id="connectionStatus" class="connection offline">
+  OFFLINE
 </div>
 
-<div class="network-add">
+  </section>
 
-<h3>ADD NETWORK</h3>
+  <section class="panel wifi-panel">
 
-<label>
-SSID
-</label>
+<div class="panel-head">
+  <div class="panel-title">WIFI</div>
 
-<input
-id="newSSID"
-type="text"
-autocomplete="off"
->
+  <button
+    id="scanButton"
+    class="scan-button"
+    onclick="scanWiFi()">
+    SCAN
+  </button>
+</div>
 
-<label>
-PASSWORD
-</label>
+<div class="section-label">
+  SAVED NETWORKS
+</div>
 
-<input
-id="newPassword"
-type="password"
-autocomplete="off"
->
+<div id="wifiList" class="saved-list">
+  <div class="empty">
+    NO NETWORK
+  </div>
+</div>
 
-<button onclick="addNetwork()">
-ADD NETWORK
-</button>
+<div class="section-label scan-label">
+  AVAILABLE NETWORKS
+</div>
+
+<div id="scanList" class="scan-list">
+  <div class="empty">
+    PRESS SCAN
+  </div>
+</div>
+
+  </section>
+
+  <section class="panel board-panel">
+
+<div class="panel-title">
+  BOARD
+</div>
+
+<div class="board-grid">
+
+  <div class="info-box">
+    <span>BOARD ID</span>
+    <strong id="boardID">---</strong>
+  </div>
+
+  <div class="info-box">
+    <span>BOARD PASSWORD</span>
+    <strong>********</strong>
+  </div>
 
 </div>
 
-</section>
+  </section>
 
-<section class="panel">
+  <section class="panel controls-panel">
 
-<h2>BOARD</h2>
-
-<div class="board-info">
-
-<div>
-<span>BOARD ID</span>
-<strong id="boardID">---</strong>
+<div class="panel-title">
+  SYSTEM
 </div>
 
-<div>
-<span>BOARD PASSWORD</span>
-<strong>********</strong>
-</div>
+<div class="controls">
+
+  <button onclick="reconnectWiFi()">
+    RECONNECT
+  </button>
+
+  <button
+    class="danger"
+    onclick="rebootBoard()">
+    RESTART
+  </button>
 
 </div>
 
-</section>
+<div id="message" class="message"></div>
 
-<section class="panel controls">
-
-<button onclick="reconnectWiFi()">
-RECONNECT WIFI
-</button>
-
-<button
-class="danger"
-onclick="rebootBoard()"
->
-RESTART BOARD
-</button>
-
-</section>
+  </section>
 
 </main>
 
 <footer>
-
-3x0c3t BO4RD //
-ESP8266 //
-
-<span id="footerIP">
----
-</span>
-
+  <span>3x0c3t BO4RD</span>
+  <span>//</span>
+  <span>ESP8266</span>
+  <span>//</span>
+  <span id="footerIP">---</span>
 </footer>
 
 <script src="/script.js"></script>
 
 </body>
-
 </html>
-
 )rawliteral";
 
 #endif
