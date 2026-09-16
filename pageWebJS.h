@@ -3,623 +3,407 @@
 
 const char PAGE_WEB_JS[] PROGMEM = R"rawliteral(
 
-async function api(url, options = {}) {
-
-const response = await fetch(
-url,
-options
-);
-
-if (!response.ok) {
-throw new Error(
-"HTTP " + response.status
-);
-}
-
-return response;
-}
-
-function showMessage(text, error = false) {
-
-const element =
-document.getElementById("message");
-
-if (!element) {
-return;
-}
-
-element.textContent = text;
-
-element.style.color =
-error
-? "#ff304f"
-: "#00ff99";
-
-setTimeout(() => {
-element.textContent = "";
-}, 3000);
-}
+let selectedSSID = "";
+let savedNetworksCache = [];
 
 async function updateStatus() {
+  try {
+    const response = await fetch("/api/status");
+    const data = await response.json();
 
-try {
+    document.getElementById("board").textContent =
+      data.board || "---";
 
-const response =
-  await api("/api/status");
+    document.getElementById("connectedSSID").textContent =
+      data.ssid || "---";
 
-const data =
-  await response.json();
+    document.getElementById("ip").textContent =
+      data.ip || "---";
 
-document.getElementById(
-  "board"
-).textContent =
-  data.board || "---";
+    document.getElementById("footerIP").textContent =
+      data.ip || "---";
 
-document.getElementById(
-  "boardID"
-).textContent =
-  data.board || "---";
+    document.getElementById("rssi").textContent =
+      data.connected
+        ? data.rssi + " dBm"
+        : "---";
 
-document.getElementById(
-  "connectedSSID"
-).textContent =
-  data.ssid || "---";
+    const status =
+      document.getElementById("connectionStatus");
 
-document.getElementById(
-  "ip"
-).textContent =
-  data.ip || "---";
+    if (data.connected) {
 
-document.getElementById(
-  "footerIP"
-).textContent =
-  data.ip || "---";
+      status.textContent = "CONNECTED";
 
-document.getElementById(
-  "rssi"
-).textContent =
-  data.connected
-    ? data.rssi + " dBm"
-    : "---";
+      status.classList.add("online");
 
-const status =
-  document.getElementById(
-    "connectionStatus"
-  );
+    } else if (data.setupAP) {
 
-if (data.connected) {
+      status.textContent = "SETUP AP";
 
-  status.textContent =
-    "CONNECTED";
+      status.classList.remove("online");
 
-  status.className =
-    "connection online";
+    } else {
 
-} else if (data.setupAP) {
+      status.textContent = "OFFLINE";
 
-  status.textContent =
-    "SETUP AP";
+      status.classList.remove("online");
 
-  status.className =
-    "connection setup";
+    }
 
-} else {
+  } catch (error) {
 
-  status.textContent =
-    "OFFLINE";
+    console.error(error);
 
-  status.className =
-    "connection offline";
-}
-
-} catch (error) {
-
-console.error(error);
-
-}
-}
-
-async function loadWiFi() {
-
-try {
-
-const response =
-  await api("/api/wifi");
-
-const networks =
-  await response.json();
-
-const container =
-  document.getElementById(
-    "wifiList"
-  );
-
-container.innerHTML = "";
-
-if (networks.length === 0) {
-
-  container.innerHTML =
-    '<div class="empty">NO NETWORK SAVED</div>';
-
-  return;
-}
-
-networks.forEach(network => {
-
-  const item =
-    document.createElement("div");
-
-  item.className =
-    "wifi-row";
-
-  if (network.priority) {
-    item.classList.add("priority");
   }
-
-  const name =
-    document.createElement("div");
-
-  name.className =
-    "wifi-name";
-
-  name.textContent =
-    network.ssid;
-
-  const meta =
-    document.createElement("div");
-
-  meta.className =
-    "wifi-meta";
-
-  meta.textContent =
-    network.priority
-      ? "PRIORITY"
-      : "BACKUP";
-
-  if (network.priority) {
-    meta.classList.add("priority");
-  }
-
-  item.appendChild(name);
-  item.appendChild(meta);
-
-  if (!network.priority) {
-
-    const remove =
-      document.createElement("button");
-
-    remove.className =
-      "small-button";
-
-    remove.textContent =
-      "DEL";
-
-    remove.onclick =
-      () => deleteNetwork(
-        network.index
-      );
-
-    item.appendChild(remove);
-
-  } else {
-
-    const spacer =
-      document.createElement("div");
-
-    item.appendChild(spacer);
-  }
-
-  container.appendChild(item);
-
-});
-
-} catch (error) {
-
-console.error(error);
-
 }
+
+async function loadSavedNetworks() {
+
+  try {
+
+    const response =
+      await fetch("/api/wifi");
+
+    const networks =
+      await response.json();
+
+    savedNetworksCache = networks;
+
+    const container =
+      document.getElementById("savedNetworks");
+
+    container.innerHTML = "";
+
+    if (!networks.length) {
+
+      container.innerHTML =
+        '<div class="empty-network">NO NETWORK SAVED</div>';
+
+      return;
+    }
+
+    networks.forEach((network) => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "network-item";
+
+      const priority =
+        network.priority
+          ? '<span class="network-priority">PRIMARY</span>'
+          : "";
+
+      row.innerHTML =
+        '<div class="network-name">' +
+        escapeHTML(network.ssid) +
+        "</div>" +
+
+        '<div class="network-rssi">' +
+        priority +
+        "</div>" +
+
+        '<button class="network-delete" onclick="deleteNetwork(' +
+        network.index +
+        ')">DELETE</button>';
+
+      container.appendChild(row);
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
 }
 
 async function scanWiFi() {
 
-const button =
-document.getElementById(
-"scanButton"
-);
-
-const container =
-document.getElementById(
-"scanList"
-);
-
-button.disabled = true;
-
-button.textContent =
-"SCAN...";
-
-container.innerHTML =
-'<div class="empty">SCANNING WIFI...</div>';
-
-try {
-
-const response =
-  await api("/api/wifi/scan");
-
-const networks =
-  await response.json();
-
-container.innerHTML = "";
-
-if (networks.length === 0) {
+  const container =
+    document.getElementById("availableNetworks");
 
   container.innerHTML =
-    '<div class="empty">NO NETWORK FOUND</div>';
+    '<div class="empty-network">SCANNING...</div>';
 
-  return;
+  try {
+
+    const response =
+      await fetch("/api/wifi/scan");
+
+    const networks =
+      await response.json();
+
+    container.innerHTML = "";
+
+    if (!networks.length) {
+
+      container.innerHTML =
+        '<div class="empty-network">NO NETWORK FOUND</div>';
+
+      return;
+    }
+
+    networks.forEach((network) => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "network-item";
+
+      row.innerHTML =
+        '<div class="network-name">' +
+        escapeHTML(network.ssid) +
+        "</div>" +
+
+        '<div class="network-rssi">' +
+        network.rssi +
+        " dBm</div>" +
+
+        '<button class="network-save" onclick="openPasswordPanel(' +
+        JSON.stringify(network.ssid) +
+        ')">SAVE</button>';
+
+      container.appendChild(row);
+
+    });
+
+  } catch (error) {
+
+    container.innerHTML =
+      '<div class="empty-network">SCAN ERROR</div>';
+
+    console.error(error);
+
+  }
 }
 
-const unique =
-  new Map();
+function openPasswordPanel(ssid) {
 
-networks.forEach(network => {
+  selectedSSID = ssid;
 
-  if (!network.ssid) {
+  document.getElementById("selectedSSID").textContent =
+    ssid;
+
+  document.getElementById("networkPassword").value =
+    "";
+
+  document.getElementById("passwordPanel")
+    .classList.remove("hidden");
+
+  document.getElementById("networkPassword")
+    .focus();
+}
+
+function closePasswordPanel() {
+
+  document.getElementById("passwordPanel")
+    .classList.add("hidden");
+
+  selectedSSID = "";
+
+}
+
+async function saveSelectedNetwork() {
+
+  if (!selectedSSID) {
     return;
   }
 
-  const existing =
-    unique.get(network.ssid);
+  const password =
+    document.getElementById("networkPassword").value;
 
-  if (
-    !existing ||
-    network.rssi > existing.rssi
-  ) {
+  if (savedNetworksCache.length >= 5) {
 
-    unique.set(
-      network.ssid,
-      network
-    );
-  }
-
-});
-
-Array.from(unique.values())
-  .sort(
-    (a, b) =>
-      b.rssi - a.rssi
-  )
-  .forEach(network => {
-
-    createScanRow(network);
-
-  });
-
-} catch (error) {
-
-console.error(error);
-
-container.innerHTML =
-  '<div class="empty">SCAN FAILED</div>';
-
-} finally {
-
-button.disabled = false;
-
-button.textContent =
-  "SCAN";
-
-}
-}
-
-function createScanRow(network) {
-
-const container =
-document.getElementById(
-"scanList"
-);
-
-const row =
-document.createElement("div");
-
-row.className =
-"scan-row";
-
-const ssid =
-document.createElement("div");
-
-ssid.className =
-"scan-ssid";
-
-ssid.textContent =
-network.ssid;
-
-const rssi =
-document.createElement("div");
-
-rssi.className =
-"scan-rssi";
-
-rssi.textContent =
-network.rssi + " dBm";
-
-const password =
-document.createElement("input");
-
-password.className =
-"scan-password";
-
-password.type =
-"password";
-
-password.placeholder =
-"PASSWORD";
-
-password.autocomplete =
-"off";
-
-const save =
-document.createElement("button");
-
-save.className =
-"save-button";
-
-save.textContent =
-"SAVE";
-
-save.onclick =
-() => saveScannedNetwork(
-network.ssid,
-password,
-save
-);
-
-row.appendChild(ssid);
-row.appendChild(rssi);
-row.appendChild(password);
-row.appendChild(save);
-
-container.appendChild(row);
-}
-
-async function saveScannedNetwork(
-ssid,
-passwordInput,
-button
-) {
-
-const password =
-passwordInput.value;
-
-button.disabled = true;
-button.textContent = "...";
-
-try {
-
-const response =
-  await api("/api/wifi");
-
-const networks =
-  await response.json();
-
-let index =
-  networks.find(
-    network =>
-      network.ssid === ssid
-  )?.index;
-
-if (index === undefined) {
-
-  if (networks.length >= 5) {
-
-    showMessage(
-      "MAXIMUM 5 NETWORKS",
-      true
-    );
+    alert("MAXIMUM 5 NETWORKS");
 
     return;
   }
 
-  index =
-    networks.length;
-}
+  const index =
+    savedNetworksCache.length;
 
-const body =
-  new URLSearchParams();
+  const body =
+    new URLSearchParams();
 
-body.append(
-  "index",
-  index
-);
+  body.append(
+    "index",
+    index
+  );
 
-body.append(
-  "ssid",
-  ssid
-);
+  body.append(
+    "ssid",
+    selectedSSID
+  );
 
-body.append(
-  "password",
-  password
-);
+  body.append(
+    "password",
+    password
+  );
 
-await api(
-  "/api/wifi/save",
-  {
-    method:"POST",
-    body:body
+  try {
+
+    const response =
+      await fetch(
+        "/api/wifi/save",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded"
+          },
+
+          body:
+            body.toString()
+        }
+      );
+
+    if (!response.ok) {
+
+      throw new Error(
+        await response.text()
+      );
+
+    }
+
+    closePasswordPanel();
+
+    await loadSavedNetworks();
+
+    await updateStatus();
+
+  } catch (error) {
+
+    alert("SAVE ERROR");
+
+    console.error(error);
+
   }
-);
-
-showMessage(
-  "WIFI SAVED: " + ssid
-);
-
-passwordInput.value = "";
-
-await loadWiFi();
-
-setTimeout(
-  updateStatus,
-  1500
-);
-
-} catch (error) {
-
-console.error(error);
-
-showMessage(
-  "SAVE FAILED",
-  true
-);
-
-} finally {
-
-button.disabled = false;
-button.textContent = "SAVE";
-
-}
 }
 
 async function deleteNetwork(index) {
 
-if (
-!confirm(
-"DELETE THIS NETWORK?"
-)
-) {
-return;
-}
+  const body =
+    new URLSearchParams();
 
-const body =
-new URLSearchParams();
+  body.append(
+    "index",
+    index
+  );
 
-body.append(
-"index",
-index
-);
+  try {
 
-try {
+    const response =
+      await fetch(
+        "/api/wifi/delete",
+        {
+          method: "POST",
 
-await api(
-  "/api/wifi/delete",
-  {
-    method:"POST",
-    body:body
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded"
+          },
+
+          body:
+            body.toString()
+        }
+      );
+
+    if (!response.ok) {
+
+      throw new Error(
+        await response.text()
+      );
+
+    }
+
+    await loadSavedNetworks();
+
+    await updateStatus();
+
+  } catch (error) {
+
+    alert("DELETE ERROR");
+
+    console.error(error);
+
   }
-);
-
-showMessage(
-  "NETWORK DELETED"
-);
-
-await loadWiFi();
-
-} catch (error) {
-
-console.error(error);
-
-showMessage(
-  "DELETE FAILED",
-  true
-);
-
-}
 }
 
 async function reconnectWiFi() {
 
-try {
+  try {
 
-showMessage(
-  "RECONNECTING..."
-);
+    await fetch(
+      "/api/wifi/reconnect",
+      {
+        method: "POST"
+      }
+    );
 
-await api(
-  "/api/wifi/reconnect",
-  {
-    method:"POST"
+    setTimeout(
+      updateStatus,
+      1000
+    );
+
+    setTimeout(
+      updateStatus,
+      3000
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
   }
-);
-
-setTimeout(
-  updateStatus,
-  2000
-);
-
-} catch (error) {
-
-console.error(error);
-
-showMessage(
-  "RECONNECT FAILED",
-  true
-);
-
-}
 }
 
 async function rebootBoard() {
 
-if (
-!confirm(
-"RESTART BO4RD?"
-)
-) {
-return;
-}
+  try {
 
-try {
+    await fetch(
+      "/api/reboot",
+      {
+        method: "POST"
+      }
+    );
 
-await api(
-  "/api/reboot",
-  {
-    method:"POST"
+  } catch (error) {
+
+    console.error(error);
+
   }
-);
-
-document.body.innerHTML = `
-  <div style="
-    height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#00eaff;
-    font-family:monospace;
-    text-align:center;
-  ">
-    <div>
-      <div style="font-size:24px;">
-        BO4RD
-      </div>
-      <div style="
-        margin-top:10px;
-        color:#00ff99;
-      ">
-        RESTARTING...
-      </div>
-    </div>
-  </div>
-`;
-
-} catch (error) {
-
-console.error(error);
-
-}
 }
 
-async function init() {
+function escapeHTML(value) {
 
-await updateStatus();
-
-await loadWiFi();
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
 }
 
-init();
+async function initPage() {
+
+  await updateStatus();
+
+  await loadSavedNetworks();
+
+}
+
+initPage();
 
 setInterval(
-updateStatus,
-5000
+  updateStatus,
+  5000
 );
 
 )rawliteral";
