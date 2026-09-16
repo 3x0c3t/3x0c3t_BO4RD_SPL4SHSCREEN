@@ -13,24 +13,34 @@ void drawScreenSplash(TFT_eSPI &tft) {
   const int16_t centerX = width / 2;
   const int16_t centerY = height / 2;
 
-  // Fond
+  // === BACKGROUND ===
+
   tft.fillScreen(TFT_BLACK);
 
-  // Texte centré
+  // === TEXT CONFIGURATION ===
+
   tft.setTextDatum(MC_DATUM);
 
-  // Logo
-  tft.setTextColor(TFT_CYAN, TFT_BLACK);
+  // === LOGO ===
+
+  tft.setTextColor(
+    TFT_CYAN,
+    TFT_BLACK
+  );
 
   tft.drawString(
-    "-3xØc3t-",
+    "-3x0c3t-",
     centerX,
     centerY - 45,
     4
   );
 
-  // Nom carte
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  // === BOARD NAME ===
+
+  tft.setTextColor(
+    TFT_WHITE,
+    TFT_BLACK
+  );
 
   tft.drawString(
     "BO4RD",
@@ -39,8 +49,12 @@ void drawScreenSplash(TFT_eSPI &tft) {
     2
   );
 
-  // Nom écran
-  tft.setTextColor(TFT_GREEN, TFT_BLACK);
+  // === SCREEN NAME ===
+
+  tft.setTextColor(
+    TFT_GREEN,
+    TFT_BLACK
+  );
 
   tft.drawString(
     "SPL4SHSCREEN",
@@ -49,7 +63,8 @@ void drawScreenSplash(TFT_eSPI &tft) {
     2
   );
 
-  // Barre de progression
+  // === PROGRESS BAR FRAME ===
+
   tft.drawRect(
     20,
     height - 35,
@@ -58,7 +73,8 @@ void drawScreenSplash(TFT_eSPI &tft) {
     TFT_CYAN
   );
 
-  // Animation
+  // === SPLASH ANIMATION ===
+
   for (
     int16_t x = 22;
     x < width - 42;

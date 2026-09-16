@@ -4,10 +4,7 @@
 #include <TFT_eSPI.h>
 #include <ESP8266WiFi.h>
 
-// === WIFI CONFIGURATION ===
-
-const char* WIFI_SSID = "TON_SSID";
-const char* WIFI_PASSWORD = "TON_MOT_DE_PASSE";
+#include "WiFi.h"
 
 // === SCREEN LOADING ===
 
@@ -19,14 +16,20 @@ void drawScreenLoading(TFT_eSPI &tft) {
   const int16_t centerX = width / 2;
   const int16_t centerY = height / 2;
 
-  // Nettoyage écran
+  // === BACKGROUND ===
+
   tft.fillScreen(TFT_BLACK);
 
-  // Configuration texte
+  // === TEXT CONFIGURATION ===
+
   tft.setTextDatum(MC_DATUM);
 
-  // Titre
-  tft.setTextColor(TFT_CYAN, TFT_BLACK);
+  // === TITLE ===
+
+  tft.setTextColor(
+    TFT_CYAN,
+    TFT_BLACK
+  );
 
   tft.drawString(
     "LOADING",
@@ -35,8 +38,12 @@ void drawScreenLoading(TFT_eSPI &tft) {
     4
   );
 
-  // Sous-titre
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  // === WIFI ===
+
+  tft.setTextColor(
+    TFT_WHITE,
+    TFT_BLACK
+  );
 
   tft.drawString(
     "WIFI",
@@ -45,8 +52,10 @@ void drawScreenLoading(TFT_eSPI &tft) {
     2
   );
 
-  // Démarrage WiFi
+  // === WIFI START ===
+
   WiFi.mode(WIFI_STA);
+
   WiFi.begin(
     WIFI_SSID,
     WIFI_PASSWORD
@@ -56,7 +65,8 @@ void drawScreenLoading(TFT_eSPI &tft) {
   Serial.print("Connexion WiFi : ");
   Serial.println(WIFI_SSID);
 
-  // Nombre de tentatives
+  // === CONNECTION ATTEMPTS ===
+
   int attempts = 0;
 
   const int maxAttempts = 30;
@@ -70,7 +80,7 @@ void drawScreenLoading(TFT_eSPI &tft) {
 
     attempts++;
 
-    // Zone statut
+    // Nettoyage zone statut
     tft.fillRect(
       0,
       centerY + 10,
@@ -79,7 +89,8 @@ void drawScreenLoading(TFT_eSPI &tft) {
       TFT_BLACK
     );
 
-    // Animation points
+    // === ANIMATION DOTS ===
+
     String dots = "";
 
     for (
@@ -102,46 +113,59 @@ void drawScreenLoading(TFT_eSPI &tft) {
       2
     );
 
-    // Barre de progression
-    int16_t barWidth =
-      map(
-        attempts,
-        0,
-        maxAttempts,
-        0,
-        width - 44
-      );
+    // === PROGRESS BAR ===
+
+    const int16_t barX = 20;
+    const int16_t barY = centerY + 60;
+    const int16_t barWidth = width - 40;
+    const int16_t barHeight = 10;
 
     tft.drawRect(
-      20,
-      centerY + 60,
-      width - 40,
-      10,
+      barX,
+      barY,
+      barWidth,
+      barHeight,
       TFT_WHITE
     );
 
-    if (barWidth > 0) {
+    int16_t progressWidth = map(
+      attempts,
+      0,
+      maxAttempts,
+      0,
+      barWidth - 4
+    );
+
+    if (progressWidth > 0) {
 
       tft.fillRect(
-        22,
-        centerY + 62,
-        barWidth,
+        barX + 2,
+        barY + 2,
+        progressWidth,
         6,
         TFT_YELLOW
       );
     }
+
+    // === SERIAL DEBUG ===
 
     Serial.print(".");
   }
 
   Serial.println();
 
-  // === CONNEXION REUSSIE ===
+  // === WIFI CONNECTED ===
 
   if (WiFi.status() == WL_CONNECTED) {
 
-    Serial.println("WiFi connecte !");
-    Serial.print("Adresse IP : ");
+    Serial.println(
+      "WiFi connecte !"
+    );
+
+    Serial.print(
+      "Adresse IP : "
+    );
+
     Serial.println(
       WiFi.localIP()
     );
@@ -168,7 +192,7 @@ void drawScreenLoading(TFT_eSPI &tft) {
       2
     );
 
-    // Adresse IP
+    // IP
     tft.setTextColor(
       TFT_WHITE,
       TFT_BLACK
@@ -180,10 +204,9 @@ void drawScreenLoading(TFT_eSPI &tft) {
       centerY + 55,
       2
     );
-
   }
 
-  // === ECHEC CONNEXION ===
+  // === WIFI ERROR ===
 
   else {
 
@@ -200,6 +223,7 @@ void drawScreenLoading(TFT_eSPI &tft) {
       TFT_BLACK
     );
 
+    // Erreur
     tft.setTextColor(
       TFT_RED,
       TFT_BLACK
