@@ -3,25 +3,33 @@
 
 #include <TFT_eSPI.h>
 
-// === SCREEN SPLASH ===
+// ==================================================
+// SCREEN SPLASH
+// ==================================================
 
-void drawScreenSplash(TFT_eSPI &tft) {
+void drawScreenSplash(
+  TFT_eSPI &tft
+) {
 
-  const int16_t width = tft.width();
-  const int16_t height = tft.height();
+  const int16_t width =
+    tft.width();
 
-  const int16_t centerX = width / 2;
-  const int16_t centerY = height / 2;
+  const int16_t height =
+    tft.height();
 
-  // === BACKGROUND ===
+  const int16_t centerX =
+    width / 2;
 
-  tft.fillScreen(TFT_BLACK);
+  const int16_t centerY =
+    height / 2;
 
-  // === TEXT CONFIGURATION ===
+  tft.fillScreen(
+    TFT_BLACK
+  );
 
-  tft.setTextDatum(MC_DATUM);
-
-  // === LOGO ===
+  tft.setTextDatum(
+    MC_DATUM
+  );
 
   tft.setTextColor(
     TFT_CYAN,
@@ -35,8 +43,6 @@ void drawScreenSplash(TFT_eSPI &tft) {
     4
   );
 
-  // === BOARD NAME ===
-
   tft.setTextColor(
     TFT_WHITE,
     TFT_BLACK
@@ -48,8 +54,6 @@ void drawScreenSplash(TFT_eSPI &tft) {
     centerY,
     2
   );
-
-  // === SCREEN NAME ===
 
   tft.setTextColor(
     TFT_GREEN,
@@ -63,8 +67,6 @@ void drawScreenSplash(TFT_eSPI &tft) {
     2
   );
 
-  // === PROGRESS BAR ===
-
   tft.drawRect(
     20,
     height - 35,
@@ -72,8 +74,6 @@ void drawScreenSplash(TFT_eSPI &tft) {
     10,
     TFT_CYAN
   );
-
-  // === SPLASH ANIMATION ===
 
   for (
     int16_t x = 22;

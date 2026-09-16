@@ -6,22 +6,27 @@
 
 #include "WiFi.h"
 
-// === SCREEN BOARD ===
+// ==================================================
+// SCREEN BOARD
+// ==================================================
 
-void drawScreenBoard(TFT_eSPI &tft) {
+void drawScreenBoard(
+  TFT_eSPI &tft
+) {
 
-  const int16_t width = tft.width();
-  const int16_t height = tft.height();
+  const int16_t width =
+    tft.width();
 
-  const int16_t centerX = width / 2;
+  const int16_t centerX =
+    width / 2;
 
-  // === BACKGROUND ===
+  tft.fillScreen(
+    TFT_BLACK
+  );
 
-  tft.fillScreen(TFT_BLACK);
-
-  // === TITLE ===
-
-  tft.setTextDatum(MC_DATUM);
+  tft.setTextDatum(
+    MC_DATUM
+  );
 
   tft.setTextColor(
     TFT_CYAN,
@@ -35,24 +40,18 @@ void drawScreenBoard(TFT_eSPI &tft) {
     2
   );
 
-  // ==================================================
-  // QR DATA
-  // ==================================================
-
   String qrData =
     "ID=" +
     String(BOARD_ID) +
     "\nPWD=" +
     String(BOARD_PASSWORD);
 
-  // ==================================================
-  // QR CODE BUFFER
-  // ==================================================
-
   const uint8_t QR_VERSION = 3;
 
   uint8_t qrcodeData[
-    qrcode_getBufferSize(QR_VERSION)
+    qrcode_getBufferSize(
+      QR_VERSION
+    )
   ];
 
   QRCode qrcode;
@@ -65,17 +64,17 @@ void drawScreenBoard(TFT_eSPI &tft) {
     qrData.c_str()
   );
 
-  // ==================================================
-  // QR DISPLAY
-  // ==================================================
+  const int16_t qrSize =
+    qrcode.size;
 
-  const int16_t qrSize = qrcode.size;
+  const int16_t maxQRSize =
+    width - 30;
 
-  const int16_t maxQRSize = width - 30;
-
-  int16_t scale = maxQRSize / qrSize;
+  int16_t scale =
+    maxQRSize / qrSize;
 
   if (scale < 1) {
+
     scale = 1;
   }
 
@@ -85,9 +84,9 @@ void drawScreenBoard(TFT_eSPI &tft) {
   const int16_t qrX =
     (width - displaySize) / 2;
 
-  const int16_t qrY = 35;
+  const int16_t qrY =
+    35;
 
-  // Fond blanc du QR
   tft.fillRect(
     qrX - 4,
     qrY - 4,
@@ -96,7 +95,6 @@ void drawScreenBoard(TFT_eSPI &tft) {
     TFT_WHITE
   );
 
-  // Modules QR
   for (
     uint8_t y = 0;
     y < qrSize;
@@ -109,14 +107,13 @@ void drawScreenBoard(TFT_eSPI &tft) {
       x++
     ) {
 
-      bool module =
+      if (
         qrcode_getModule(
           &qrcode,
           x,
           y
-        );
-
-      if (module) {
+        )
+      ) {
 
         tft.fillRect(
           qrX + x * scale,
@@ -129,12 +126,10 @@ void drawScreenBoard(TFT_eSPI &tft) {
     }
   }
 
-  // ==================================================
-  // BOARD INFORMATION
-  // ==================================================
-
   const int16_t infoY =
-    qrY + displaySize + 18;
+    qrY +
+    displaySize +
+    18;
 
   tft.setTextColor(
     TFT_WHITE,
@@ -142,7 +137,8 @@ void drawScreenBoard(TFT_eSPI &tft) {
   );
 
   tft.drawString(
-    "ID: " + String(BOARD_ID),
+    "ID: " +
+    String(BOARD_ID),
     centerX,
     infoY,
     2
@@ -154,7 +150,8 @@ void drawScreenBoard(TFT_eSPI &tft) {
   );
 
   tft.drawString(
-    "PWD: " + String(BOARD_PASSWORD),
+    "PWD: " +
+    String(BOARD_PASSWORD),
     centerX,
     infoY + 22,
     2
