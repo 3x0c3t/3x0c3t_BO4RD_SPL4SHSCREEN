@@ -24,16 +24,9 @@ void drawScreenLoading(
   const int16_t centerX =
     width / 2;
 
-  const int16_t centerY =
-    height / 2;
+  tft.fillScreen(TFT_BLACK);
 
-  tft.fillScreen(
-    TFT_BLACK
-  );
-
-  tft.setTextDatum(
-    MC_DATUM
-  );
+  tft.setTextDatum(MC_DATUM);
 
   // ==================================================
   // TITLE
@@ -45,14 +38,94 @@ void drawScreenLoading(
   );
 
   tft.drawString(
-    "LOADING",
+    "WIFI",
     centerX,
-    centerY - 70,
+    35,
     4
   );
 
   // ==================================================
-  // WIFI
+  // NO CONFIGURATION
+  // ==================================================
+
+  if (!isWiFiConfigured()) {
+
+    tft.setTextColor(
+      TFT_WHITE,
+      TFT_BLACK
+    );
+
+    tft.drawString(
+      "CONFIGURATION",
+      centerX,
+      80,
+      2
+    );
+
+    tft.setTextColor(
+      TFT_GREEN,
+      TFT_BLACK
+    );
+
+    tft.drawString(
+      "CONNECT TO",
+      centerX,
+      120,
+      2
+    );
+
+    String apSSID =
+      String(BOARD_ID) +
+      String(SETUP_AP_SUFFIX);
+
+    tft.drawString(
+      apSSID,
+      centerX,
+      150,
+      2
+    );
+
+    tft.setTextColor(
+      TFT_WHITE,
+      TFT_BLACK
+    );
+
+    tft.drawString(
+      "OPEN",
+      centerX,
+      190,
+      2
+    );
+
+    tft.setTextColor(
+      TFT_CYAN,
+      TFT_BLACK
+    );
+
+    tft.drawString(
+      "192.168.4.1",
+      centerX,
+      220,
+      2
+    );
+
+    tft.setTextColor(
+      TFT_YELLOW,
+      TFT_BLACK
+    );
+
+    tft.drawString(
+      "ENTER WIFI SSID/PWD",
+      centerX,
+      270,
+      1
+    );
+
+    return;
+  }
+
+  // ==================================================
+  // CONNECTING
   // ==================================================
 
   tft.setTextColor(
@@ -61,36 +134,18 @@ void drawScreenLoading(
   );
 
   tft.drawString(
-    "WIFI",
+    "CONNECTING",
     centerX,
-    centerY - 30,
+    90,
     2
   );
-
-  // ==================================================
-  // LOAD CONFIGURATION
-  // ==================================================
-
-  loadWiFiConfiguration();
-
-  // ==================================================
-  // CONNECT
-  // ==================================================
 
   bool connected =
     connectWiFi();
 
   // ==================================================
-  // STATUS
+  // CONNECTED
   // ==================================================
-
-  tft.fillRect(
-    0,
-    centerY,
-    width,
-    100,
-    TFT_BLACK
-  );
 
   if (connected) {
 
@@ -100,52 +155,66 @@ void drawScreenLoading(
     );
 
     tft.drawString(
-      "CONNECTE",
+      "CONNECTED",
       centerX,
-      centerY + 15,
+      140,
       2
     );
 
     tft.setTextColor(
       TFT_WHITE,
+      TFT_BLACK
+    );
+
+    tft.drawString(
+      WiFi.SSID(),
+      centerX,
+      175,
+      2
+    );
+
+    tft.setTextColor(
+      TFT_CYAN,
       TFT_BLACK
     );
 
     tft.drawString(
       WiFi.localIP().toString(),
       centerX,
-      centerY + 45,
+      215,
       2
     );
 
-  } else {
-
-    tft.setTextColor(
-      TFT_RED,
-      TFT_BLACK
-    );
-
-    tft.drawString(
-      "ECHEC WIFI",
-      centerX,
-      centerY + 15,
-      2
-    );
-
-    tft.setTextColor(
-      TFT_WHITE,
-      TFT_BLACK
-    );
-
-    tft.drawString(
-      "NO NETWORK",
-      centerX,
-      centerY + 45,
-      2
-    );
+    return;
   }
 
-  delay(2000);
+  // ==================================================
+  // FAILED
+  // ==================================================
+
+  tft.setTextColor(
+    TFT_RED,
+    TFT_BLACK
+  );
+
+  tft.drawString(
+    "CONNECTION FAILED",
+    centerX,
+    145,
+    2
+  );
+
+  tft.setTextColor(
+    TFT_WHITE,
+    TFT_BLACK
+  );
+
+  tft.drawString(
+    "CHECK WIFI SETTINGS",
+    centerX,
+    185,
+    1
+  );
 }
 
 #endif

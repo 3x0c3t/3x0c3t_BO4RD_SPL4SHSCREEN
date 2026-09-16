@@ -4,91 +4,15 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <LittleFS.h>
 
 #include "WiFi.h"
 #include "WiFiManager.h"
 
-// ==================================================
-// SERVER
-// ==================================================
+#include "pageWebHTML.h"
+#include "pageWebCSS.h"
+#include "pageWebJS.h"
 
 ESP8266WebServer server(80);
-
-// ==================================================
-// MIME
-// ==================================================
-
-String getContentType(
-  const String &filename
-) {
-
-  if (
-    filename.endsWith(".html")
-  ) {
-
-    return "text/html";
-  }
-
-  if (
-    filename.endsWith(".css")
-  ) {
-
-    return "text/css";
-  }
-
-  if (
-    filename.endsWith(".js")
-  ) {
-
-    return "application/javascript";
-  }
-
-  if (
-    filename.endsWith(".json")
-  ) {
-
-    return "application/json";
-  }
-
-  return "text/plain";
-}
-
-// ==================================================
-// SEND FILE
-// ==================================================
-
-bool sendFile(
-  const String &path
-) {
-
-  if (
-    !LittleFS.exists(path)
-  ) {
-
-    return false;
-  }
-
-  File file =
-    LittleFS.open(
-      path,
-      "r"
-    );
-
-  if (!file) {
-
-    return false;
-  }
-
-  server.streamFile(
-    file,
-    getContentType(path)
-  );
-
-  file.close();
-
-  return true;
-}
 
 // ==================================================
 // ROOT
@@ -96,19 +20,36 @@ bool sendFile(
 
 void handleRoot() {
 
-  if (
-    sendFile(
-      "/index.html"
-    )
-  ) {
+  server.send_P(
+    200,
+    "text/html; charset=utf-8",
+    PAGE_WEB_HTML
+  );
+}
 
-    return;
-  }
+// ==================================================
+// CSS
+// ==================================================
 
-  server.send(
-    404,
-    "text/plain",
-    "BO4RD web interface unavailable"
+void handleCSS() {
+
+  server.send_P(
+    200,
+    "text/css",
+    PAGE_WEB_CSS
+  );
+}
+
+// ==================================================
+// JS
+// ==================================================
+
+void handleJS() {
+
+  server.send_P(
+    200,
+    "application/javascript",
+    PAGE_WEB_JS
   );
 }
 
@@ -124,11 +65,27 @@ void handleStatus() {
   json += BOARD_ID;
   json += "\",";
 
-  json += "\"connected\":";
-
+  json += "\"configured\":";
   json += (
-    WiFi.status() ==
-    WL_CONNECTED
+    isWiFiConfigured()
+      ? "true"
+      : "false"
+  );
+
+  json += ",";
+
+  json += "\"connected\":";
+  json += (
+    WiFi.status() == WL_CONNECTED
+      ? "true"
+      : "false"
+  );
+
+  json += ",";
+
+  json += "\"setupAP\":";
+  json += (
+    setupAPActive
       ? "true"
       : "false"
   );
@@ -138,17 +95,36 @@ void handleStatus() {
   json += "\"ssid\":\"";
 
   if (
-    WiFi.status() ==
-    WL_CONNECTED
+    WiFi.status() == WL_CONNECTED
   ) {
 
     json += WiFi.SSID();
+
+  } else if (
+    setupAPActive
+  ) {
+
+    json += String(BOARD_ID);
+    json += SETUP_AP_SUFFIX;
   }
 
   json += "\",";
 
   json += "\"ip\":\"";
-  json += WiFi.localIP().toString();
+
+  if (
+    WiFi.status() == WL_CONNECTED
+  ) {
+
+    json +=
+      WiFi.localIP().toString();
+
+  } else {
+
+    json +=
+      WiFi.softAPIP().toString();
+  }
+
   json += "\",";
 
   json += "\"rssi\":";
@@ -180,7 +156,6 @@ void handleWiFiList() {
   ) {
 
     if (i > 0) {
-
       json += ",";
     }
 
@@ -195,7 +170,6 @@ void handleWiFiList() {
     json += "\",";
 
     json += "\"priority\":";
-
     json += (
       i == 0
         ? "true"
@@ -215,54 +189,7 @@ void handleWiFiList() {
 }
 
 // ==================================================
-// WIFI SCAN
-// ==================================================
-
-void handleWiFiScan() {
-
-  int count =
-    WiFi.scanNetworks();
-
-  String json = "[";
-
-  for (
-    int i = 0;
-    i < count;
-    i++
-  ) {
-
-    if (i > 0) {
-
-      json += ",";
-    }
-
-    json += "{";
-
-    json += "\"ssid\":\"";
-    json += WiFi.SSID(i);
-    json += "\",";
-
-    json += "\"rssi\":";
-    json += String(
-      WiFi.RSSI(i)
-    );
-
-    json += "}";
-  }
-
-  json += "]";
-
-  WiFi.scanDelete();
-
-  server.send(
-    200,
-    "application/json",
-    json
-  );
-}
-
-// ==================================================
-// SAVE WIFI
+// WIFI SAVE
 // ==================================================
 
 void handleWiFiSave() {
@@ -283,22 +210,16 @@ void handleWiFiSave() {
   }
 
   int index =
-    server.arg(
-      "index"
-    ).toInt();
+    server.arg("index").toInt();
 
   String ssid =
-    server.arg(
-      "ssid"
-    );
+    server.arg("ssid");
 
   String password =
-    server.arg(
-      "password"
-    );
+    server.arg("password");
 
   if (
-    index < 1 ||
+    index < 0 ||
     index >= MAX_WIFI_NETWORKS
   ) {
 
@@ -349,7 +270,7 @@ void handleWiFiSave() {
 }
 
 // ==================================================
-// DELETE WIFI
+// WIFI DELETE
 // ==================================================
 
 void handleWiFiDelete() {
@@ -368,14 +289,10 @@ void handleWiFiDelete() {
   }
 
   int index =
-    server.arg(
-      "index"
-    ).toInt();
+    server.arg("index").toInt();
 
   if (
-    !deleteWiFiNetwork(
-      index
-    )
+    !deleteWiFiNetwork(index)
   ) {
 
     server.send(
@@ -391,6 +308,52 @@ void handleWiFiDelete() {
     200,
     "text/plain",
     "Deleted"
+  );
+}
+
+// ==================================================
+// WIFI SCAN
+// ==================================================
+
+void handleWiFiScan() {
+
+  int count =
+    WiFi.scanNetworks();
+
+  String json = "[";
+
+  for (
+    int i = 0;
+    i < count;
+    i++
+  ) {
+
+    if (i > 0) {
+      json += ",";
+    }
+
+    json += "{";
+
+    json += "\"ssid\":\"";
+    json += WiFi.SSID(i);
+    json += "\",";
+
+    json += "\"rssi\":";
+    json += String(
+      WiFi.RSSI(i)
+    );
+
+    json += "}";
+  }
+
+  json += "]";
+
+  WiFi.scanDelete();
+
+  server.send(
+    200,
+    "application/json",
+    json
   );
 }
 
@@ -443,31 +406,19 @@ void startWebServer() {
   server.on(
     "/index.html",
     HTTP_GET,
-    []() {
-      sendFile(
-        "/index.html"
-      );
-    }
+    handleRoot
   );
 
   server.on(
     "/style.css",
     HTTP_GET,
-    []() {
-      sendFile(
-        "/style.css"
-      );
-    }
+    handleCSS
   );
 
   server.on(
     "/script.js",
     HTTP_GET,
-    []() {
-      sendFile(
-        "/script.js"
-      );
-    }
+    handleJS
   );
 
   server.on(

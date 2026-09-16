@@ -4,23 +4,16 @@
 #include <ESP8266WiFi.h>
 
 // ==================================================
-// WIFI DEFAULT / PRIORITY 1
+// BOARD SETTINGS
 // ==================================================
 
-const char* WIFI_SSID = "N0wifiHere";
-const char* WIFI_PASSWORD = "@PassWeurd";
-
-// ==================================================
-// BOARD
-// ==================================================
-
-const char* BOARD_ID = "BO4RD_001";
+const char* BOARD_ID = "3x0c3t_BO4RD";
 const char* BOARD_PASSWORD = "BO4RD_PASS";
 
 // ==================================================
-// WIFI
+// CONFIGURATION ACCESS POINT
 // ==================================================
 
-#define MAX_WIFI_NETWORKS 5
+const char* SETUP_AP_SUFFIX = "_SETUP";
 
 #endif
