@@ -1,6 +1,7 @@
 #include <TFT_eSPI.h>
 
 #include "ScreenSplash.h"
+#include "ScreenBoard.h"
 #include "ScreenLoading.h"
 
 // === TFT ===
@@ -23,6 +24,12 @@ void setup() {
   drawScreenSplash(tft);
 
   delay(1500);
+
+  // === SCREEN BOARD ===
+
+  drawScreenBoard(tft);
+
+  delay(5000);
 
   // === SCREEN LOADING ===
 

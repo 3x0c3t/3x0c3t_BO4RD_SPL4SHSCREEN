@@ -62,8 +62,12 @@ void drawScreenLoading(TFT_eSPI &tft) {
   );
 
   Serial.println();
-  Serial.print("Connexion WiFi : ");
-  Serial.println(WIFI_SSID);
+  Serial.print(
+    "Connexion WiFi : "
+  );
+  Serial.println(
+    WIFI_SSID
+  );
 
   // === CONNECTION ATTEMPTS ===
 
@@ -80,7 +84,8 @@ void drawScreenLoading(TFT_eSPI &tft) {
 
     attempts++;
 
-    // Nettoyage zone statut
+    // === STATUS AREA ===
+
     tft.fillRect(
       0,
       centerY + 10,
@@ -89,7 +94,7 @@ void drawScreenLoading(TFT_eSPI &tft) {
       TFT_BLACK
     );
 
-    // === ANIMATION DOTS ===
+    // === ANIMATION ===
 
     String dots = "";
 
@@ -147,8 +152,6 @@ void drawScreenLoading(TFT_eSPI &tft) {
       );
     }
 
-    // === SERIAL DEBUG ===
-
     Serial.print(".");
   }
 
@@ -204,17 +207,15 @@ void drawScreenLoading(TFT_eSPI &tft) {
       centerY + 55,
       2
     );
-  }
 
-  // === WIFI ERROR ===
+  } else {
 
-  else {
+    // === WIFI ERROR ===
 
     Serial.println(
       "Echec connexion WiFi"
     );
 
-    // Nettoyage
     tft.fillRect(
       0,
       centerY + 10,
@@ -223,7 +224,6 @@ void drawScreenLoading(TFT_eSPI &tft) {
       TFT_BLACK
     );
 
-    // Erreur
     tft.setTextColor(
       TFT_RED,
       TFT_BLACK

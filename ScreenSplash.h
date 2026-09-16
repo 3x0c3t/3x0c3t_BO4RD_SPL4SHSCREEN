@@ -29,7 +29,7 @@ void drawScreenSplash(TFT_eSPI &tft) {
   );
 
   tft.drawString(
-    "-3x0c3t-",
+    "-3xØc3t-",
     centerX,
     centerY - 45,
     4
@@ -63,7 +63,7 @@ void drawScreenSplash(TFT_eSPI &tft) {
     2
   );
 
-  // === PROGRESS BAR FRAME ===
+  // === PROGRESS BAR ===
 
   tft.drawRect(
     20,
