@@ -4,11 +4,14 @@
 const char PAGE_WEB_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>-3xØc3t- / BO4RD</title>
-<link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>-3xØc3t- / BO4RD</title>
+
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -26,55 +29,115 @@ const char PAGE_WEB_HTML[] PROGMEM = R"rawliteral(
   </div>
 
   <div class="header-actions">
-    <button onclick="reconnectWiFi()">RECONNECT</button>
-    <button class="danger" onclick="rebootBoard()">RESTART</button>
+
+    <button onclick="reconnectWiFi()">
+      RECONNECT
+    </button>
+
+    <button
+      class="danger"
+      onclick="rebootBoard()">
+      RESTART
+    </button>
+
   </div>
 
 </header>
 
+
+<header class="header2">
+
+  <div class="status-title">
+    STATUS
+  </div>
+
+  <div class="status-grid">
+
+    <div class="status-item">
+
+      <span class="status-label">
+        BOARD
+      </span>
+
+      <strong id="board">
+        3x0c3t_BO4RD
+      </strong>
+
+    </div>
+
+
+    <div class="status-item">
+
+      <span class="status-label">
+        SSID
+      </span>
+
+      <strong id="connectedSSID">
+        3x0c3t_BO4RD_SETUP
+      </strong>
+
+    </div>
+
+
+    <div class="status-item">
+
+      <span class="status-label">
+        IP
+      </span>
+
+      <strong id="ip">
+        192.168.4.1
+      </strong>
+
+    </div>
+
+
+    <div class="status-item">
+
+      <span class="status-label">
+        RSSI
+      </span>
+
+      <strong id="rssi">
+        ---
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="connectionStatus"
+    class="connection-status">
+
+    SETUP AP
+
+  </div>
+
+</header>
+
+
 <main>
 
-  <section class="status-panel">
+  <section class="panel wifi-panel">
 
-    <div class="panel-title">STATUS</div>
+    <div class="panel-header">
 
-    <div class="status-content">
-
-      <div class="status-row">
-        <span class="status-label">BOARD</span>
-        <strong id="board">3x0c3t_BO4RD</strong>
+      <div class="panel-title">
+        WIFI
       </div>
 
-      <div class="status-row">
-        <span class="status-label">SSID</span>
-        <strong id="connectedSSID">3x0c3t_BO4RD_SETUP</strong>
-      </div>
+      <button
+        class="scan-button"
+        onclick="scanWiFi()">
 
-      <div class="status-row">
-        <span class="status-label">IP</span>
-        <strong id="ip">192.168.4.1</strong>
-      </div>
+        SCAN
 
-      <div class="status-row">
-        <span class="status-label">RSSI</span>
-        <strong id="rssi">---</strong>
-      </div>
+      </button>
 
     </div>
 
-    <div id="connectionStatus" class="connection-status">
-      OFFLINE
-    </div>
-
-  </section>
-
-  <section class="wifi-panel">
-
-    <div class="panel-title">WIFI</div>
-
-    <div class="scan-bar">
-      <button class="scan-button" onclick="scanWiFi()">SCAN</button>
-    </div>
 
     <div class="network-section">
 
@@ -82,7 +145,9 @@ const char PAGE_WEB_HTML[] PROGMEM = R"rawliteral(
         SAVED NETWORKS
       </div>
 
-      <div id="savedNetworks" class="network-list">
+      <div
+        id="savedNetworks"
+        class="network-list">
 
         <div class="empty-network">
           NO NETWORK SAVED
@@ -92,13 +157,16 @@ const char PAGE_WEB_HTML[] PROGMEM = R"rawliteral(
 
     </div>
 
-    <div class="network-section available-section">
+
+    <div class="network-section">
 
       <div class="section-title">
         AVAILABLE NETWORKS
       </div>
 
-      <div id="availableNetworks" class="network-list">
+      <div
+        id="availableNetworks"
+        class="network-list">
 
         <div class="empty-network">
           PRESS SCAN
@@ -110,55 +178,33 @@ const char PAGE_WEB_HTML[] PROGMEM = R"rawliteral(
 
   </section>
 
-  <section id="passwordPanel" class="password-panel hidden">
-
-    <div class="panel-title">
-      WIFI PASSWORD
-    </div>
-
-    <div class="selected-network">
-      <span>NETWORK</span>
-      <strong id="selectedSSID">---</strong>
-    </div>
-
-    <label for="networkPassword">
-      PASSWORD
-    </label>
-
-    <input
-      id="networkPassword"
-      type="password"
-      autocomplete="off"
-      placeholder="WIFI PASSWORD"
-    >
-
-    <button
-      class="save-button"
-      onclick="saveSelectedNetwork()"
-    >
-      SAVE
-    </button>
-
-    <button
-      class="cancel-button"
-      onclick="closePasswordPanel()"
-    >
-      CANCEL
-    </button>
-
-  </section>
-
 </main>
+
 
 <footer>
 
-  <span>3x0c3t BO4RD</span>
-  <span>//</span>
-  <span>ESP8266</span>
-  <span>//</span>
-  <span id="footerIP">192.168.4.1</span>
+  <span>
+    3x0c3t BO4RD
+  </span>
+
+  <span>
+    //
+  </span>
+
+  <span>
+    ESP8266
+  </span>
+
+  <span>
+    //
+  </span>
+
+  <span id="footerIP">
+    192.168.4.1
+  </span>
 
 </footer>
+
 
 <script src="/script.js"></script>
 

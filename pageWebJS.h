@@ -3,60 +3,109 @@
 
 const char PAGE_WEB_JS[] PROGMEM = R"rawliteral(
 
-let selectedSSID = "";
 let savedNetworksCache = [];
 
-async function updateStatus() {
-  try {
-    const response = await fetch("/api/status");
-    const data = await response.json();
 
-    document.getElementById("board").textContent =
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+async function updateStatus() {
+
+  try {
+
+    const response =
+      await fetch("/api/status");
+
+    const data =
+      await response.json();
+
+
+    document.getElementById(
+      "board"
+    ).textContent =
       data.board || "---";
 
-    document.getElementById("connectedSSID").textContent =
+
+    document.getElementById(
+      "connectedSSID"
+    ).textContent =
       data.ssid || "---";
 
-    document.getElementById("ip").textContent =
+
+    document.getElementById(
+      "ip"
+    ).textContent =
       data.ip || "---";
 
-    document.getElementById("footerIP").textContent =
+
+    document.getElementById(
+      "footerIP"
+    ).textContent =
       data.ip || "---";
 
-    document.getElementById("rssi").textContent =
+
+    document.getElementById(
+      "rssi"
+    ).textContent =
       data.connected
         ? data.rssi + " dBm"
         : "---";
 
+
     const status =
-      document.getElementById("connectionStatus");
+      document.getElementById(
+        "connectionStatus"
+      );
+
 
     if (data.connected) {
 
-      status.textContent = "CONNECTED";
+      status.textContent =
+        "CONNECTED";
 
-      status.classList.add("online");
-
-    } else if (data.setupAP) {
-
-      status.textContent = "SETUP AP";
-
-      status.classList.remove("online");
-
-    } else {
-
-      status.textContent = "OFFLINE";
-
-      status.classList.remove("online");
+      status.classList.add(
+        "online"
+      );
 
     }
 
-  } catch (error) {
+    else if (data.setupAP) {
+
+      status.textContent =
+        "SETUP AP";
+
+      status.classList.remove(
+        "online"
+      );
+
+    }
+
+    else {
+
+      status.textContent =
+        "OFFLINE";
+
+      status.classList.remove(
+        "online"
+      );
+
+    }
+
+  }
+
+  catch (error) {
 
     console.error(error);
 
   }
+
 }
+
+
+/* =========================================================
+   SAVED NETWORKS
+   ========================================================= */
 
 async function loadSavedNetworks() {
 
@@ -68,181 +117,352 @@ async function loadSavedNetworks() {
     const networks =
       await response.json();
 
-    savedNetworksCache = networks;
+
+    savedNetworksCache =
+      networks;
+
 
     const container =
-      document.getElementById("savedNetworks");
+      document.getElementById(
+        "savedNetworks"
+      );
+
 
     container.innerHTML = "";
+
 
     if (!networks.length) {
 
       container.innerHTML =
-        '<div class="empty-network">NO NETWORK SAVED</div>';
+        '<div class="empty-network">' +
+        'NO NETWORK SAVED' +
+        '</div>';
 
       return;
+
     }
 
-    networks.forEach((network) => {
 
-      const row =
-        document.createElement("div");
+    networks.forEach(
+      function(network) {
 
-      row.className =
-        "network-item";
+        const row =
+          document.createElement(
+            "div"
+          );
 
-      const priority =
-        network.priority
-          ? '<span class="network-priority">PRIMARY</span>'
-          : "";
 
-      row.innerHTML =
-        '<div class="network-name">' +
-        escapeHTML(network.ssid) +
-        "</div>" +
+        row.className =
+          "network-item";
 
-        '<div class="network-rssi">' +
-        priority +
-        "</div>" +
 
-        '<button class="network-delete" onclick="deleteNetwork(' +
-        network.index +
-        ')">DELETE</button>';
+        const priority =
+          network.priority
+            ? "PRIMARY"
+            : "";
 
-      container.appendChild(row);
 
-    });
+        row.innerHTML =
 
-  } catch (error) {
+          '<div class="network-name">' +
+
+          escapeHTML(
+            network.ssid
+          ) +
+
+          '<br>' +
+
+          '<span class="network-priority">' +
+
+          priority +
+
+          '</span>' +
+
+          '</div>' +
+
+          '<div class="network-rssi">' +
+
+          '</div>' +
+
+          '<input ' +
+
+          'class="network-password" ' +
+
+          'type="password" ' +
+
+          'placeholder="PWD" ' +
+
+          'data-index="' +
+
+          network.index +
+
+          '">' +
+
+          '<button ' +
+
+          'class="network-delete" ' +
+
+          'onclick="deleteNetwork(' +
+
+          network.index +
+
+          ')">' +
+
+          'DELETE' +
+
+          '</button>';
+
+
+        container.appendChild(
+          row
+        );
+
+      }
+    );
+
+  }
+
+  catch (error) {
 
     console.error(error);
 
   }
+
 }
+
+
+/* =========================================================
+   WIFI SCAN
+   ========================================================= */
 
 async function scanWiFi() {
 
   const container =
-    document.getElementById("availableNetworks");
+    document.getElementById(
+      "availableNetworks"
+    );
+
 
   container.innerHTML =
-    '<div class="empty-network">SCANNING...</div>';
+    '<div class="empty-network">' +
+    'SCANNING...' +
+    '</div>';
+
 
   try {
 
     const response =
-      await fetch("/api/wifi/scan");
+      await fetch(
+        "/api/wifi/scan"
+      );
+
 
     const networks =
       await response.json();
 
+
     container.innerHTML = "";
+
 
     if (!networks.length) {
 
       container.innerHTML =
-        '<div class="empty-network">NO NETWORK FOUND</div>';
+        '<div class="empty-network">' +
+        'NO NETWORK FOUND' +
+        '</div>';
 
       return;
+
     }
 
-    networks.forEach((network) => {
 
-      const row =
-        document.createElement("div");
+    networks.forEach(
+      function(network, index) {
 
-      row.className =
-        "network-item";
+        const row =
+          document.createElement(
+            "div"
+          );
 
-      row.innerHTML =
-        '<div class="network-name">' +
-        escapeHTML(network.ssid) +
-        "</div>" +
 
-        '<div class="network-rssi">' +
-        network.rssi +
-        " dBm</div>" +
+        row.className =
+          "network-item";
 
-        '<button class="network-save" onclick="openPasswordPanel(' +
-        JSON.stringify(network.ssid) +
-        ')">SAVE</button>';
 
-      container.appendChild(row);
+        row.innerHTML =
 
-    });
+          '<div class="network-name">' +
 
-  } catch (error) {
+          escapeHTML(
+            network.ssid
+          ) +
+
+          '</div>' +
+
+          '<div class="network-rssi">' +
+
+          network.rssi +
+
+          ' dBm' +
+
+          '</div>' +
+
+          '<input ' +
+
+          'class="network-password" ' +
+
+          'type="password" ' +
+
+          'id="password-' +
+
+          index +
+
+          '" ' +
+
+          'placeholder="PWD">' +
+
+          '<button ' +
+
+          'class="network-save" ' +
+
+          'onclick="saveScannedNetwork(' +
+
+          index +
+
+          ')">' +
+
+          'SAVE' +
+
+          '</button>';
+
+
+        row.dataset.ssid =
+          network.ssid;
+
+
+        container.appendChild(
+          row
+        );
+
+      }
+    );
+
+  }
+
+  catch (error) {
 
     container.innerHTML =
-      '<div class="empty-network">SCAN ERROR</div>';
+      '<div class="empty-network">' +
+      'SCAN ERROR' +
+      '</div>';
+
 
     console.error(error);
 
   }
-}
-
-function openPasswordPanel(ssid) {
-
-  selectedSSID = ssid;
-
-  document.getElementById("selectedSSID").textContent =
-    ssid;
-
-  document.getElementById("networkPassword").value =
-    "";
-
-  document.getElementById("passwordPanel")
-    .classList.remove("hidden");
-
-  document.getElementById("networkPassword")
-    .focus();
-}
-
-function closePasswordPanel() {
-
-  document.getElementById("passwordPanel")
-    .classList.add("hidden");
-
-  selectedSSID = "";
 
 }
 
-async function saveSelectedNetwork() {
 
-  if (!selectedSSID) {
+/* =========================================================
+   SAVE SCANNED NETWORK
+   ========================================================= */
+
+async function saveScannedNetwork(
+  index
+) {
+
+  const container =
+    document.getElementById(
+      "availableNetworks"
+    );
+
+
+  const rows =
+    container.querySelectorAll(
+      ".network-item"
+    );
+
+
+  if (
+    index < 0 ||
+    index >= rows.length
+  ) {
+
     return;
+
   }
+
+
+  const row =
+    rows[index];
+
+
+  const ssid =
+    row.dataset.ssid;
+
+
+  const passwordInput =
+    document.getElementById(
+      "password-" + index
+    );
+
 
   const password =
-    document.getElementById("networkPassword").value;
+    passwordInput
+      ? passwordInput.value
+      : "";
 
-  if (savedNetworksCache.length >= 5) {
 
-    alert("MAXIMUM 5 NETWORKS");
+  if (!ssid) {
+
+    alert(
+      "SSID ERROR"
+    );
 
     return;
+
   }
 
-  const index =
+
+  if (
+    savedNetworksCache.length >= 5
+  ) {
+
+    alert(
+      "MAXIMUM 5 NETWORKS"
+    );
+
+    return;
+
+  }
+
+
+  const networkIndex =
     savedNetworksCache.length;
+
 
   const body =
     new URLSearchParams();
 
+
   body.append(
     "index",
-    index
+    networkIndex
   );
+
 
   body.append(
     "ssid",
-    selectedSSID
+    ssid
   );
+
 
   body.append(
     "password",
     password
   );
+
 
   try {
 
@@ -262,6 +482,7 @@ async function saveSelectedNetwork() {
         }
       );
 
+
     if (!response.ok) {
 
       throw new Error(
@@ -270,30 +491,43 @@ async function saveSelectedNetwork() {
 
     }
 
-    closePasswordPanel();
 
     await loadSavedNetworks();
 
     await updateStatus();
 
-  } catch (error) {
+  }
 
-    alert("SAVE ERROR");
+  catch (error) {
+
+    alert(
+      "SAVE ERROR"
+    );
 
     console.error(error);
 
   }
+
 }
 
-async function deleteNetwork(index) {
+
+/* =========================================================
+   DELETE NETWORK
+   ========================================================= */
+
+async function deleteNetwork(
+  index
+) {
 
   const body =
     new URLSearchParams();
+
 
   body.append(
     "index",
     index
   );
+
 
   try {
 
@@ -313,6 +547,7 @@ async function deleteNetwork(index) {
         }
       );
 
+
     if (!response.ok) {
 
       throw new Error(
@@ -321,18 +556,29 @@ async function deleteNetwork(index) {
 
     }
 
+
     await loadSavedNetworks();
 
     await updateStatus();
 
-  } catch (error) {
+  }
 
-    alert("DELETE ERROR");
+  catch (error) {
+
+    alert(
+      "DELETE ERROR"
+    );
 
     console.error(error);
 
   }
+
 }
+
+
+/* =========================================================
+   RECONNECT
+   ========================================================= */
 
 async function reconnectWiFi() {
 
@@ -345,22 +591,32 @@ async function reconnectWiFi() {
       }
     );
 
+
     setTimeout(
       updateStatus,
       1000
     );
+
 
     setTimeout(
       updateStatus,
       3000
     );
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
 
   }
+
 }
+
+
+/* =========================================================
+   RESTART
+   ========================================================= */
 
 async function rebootBoard() {
 
@@ -373,23 +629,58 @@ async function rebootBoard() {
       }
     );
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
 
   }
+
 }
 
-function escapeHTML(value) {
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeHTML(
+  value
+) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
+
+
+/* =========================================================
+   INIT
+   ========================================================= */
 
 async function initPage() {
 
@@ -399,7 +690,9 @@ async function initPage() {
 
 }
 
+
 initPage();
+
 
 setInterval(
   updateStatus,

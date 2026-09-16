@@ -4,44 +4,63 @@
 const char PAGE_WEB_CSS[] PROGMEM = R"rawliteral(
 
 :root {
+
   --bg: #020607;
-  --panel: rgba(5, 15, 19, 0.94);
-  --panel-light: rgba(7, 20, 25, 0.90);
+
+  --panel: rgba(5, 15, 19, 0.96);
+
+  --panel-light: rgba(7, 20, 25, 0.96);
 
   --cyan: #00eaff;
+
   --green: #00ff99;
+
   --red: #ff304f;
 
   --text: #d9ffff;
+
   --muted: #6d9999;
 
   --border: #12404a;
 
-  --header-height: 58px;
+  --header1-height: 58px;
+
+  --header2-height: 108px;
+
   --footer-height: 34px;
+
 }
+
 
 * {
   box-sizing: border-box;
 }
 
+
 html,
 body {
+
   width: 100%;
+
   height: 100%;
+
   margin: 0;
+
   padding: 0;
+
 }
 
+
 body {
+
   overflow: hidden;
 
   background:
     radial-gradient(
       circle at center,
       #09212a 0%,
-      #031015 40%,
-      #020607 80%
+      #031015 45%,
+      #020607 100%
     );
 
   color: var(--text);
@@ -51,19 +70,24 @@ body {
     monospace;
 
   font-size: 14px;
+
 }
+
 
 button,
 input {
+
   font-family:
     "Courier New",
     monospace;
+
 }
 
-button {
-  cursor: pointer;
 
-  border: 1px solid var(--cyan);
+button {
+
+  border:
+    1px solid var(--cyan);
 
   background:
     rgba(0, 234, 255, 0.03);
@@ -73,34 +97,57 @@ button {
   padding:
     8px 12px;
 
+  cursor: pointer;
+
   font-size: 11px;
 
   letter-spacing: 1px;
+
 }
+
 
 button:hover {
+
   background: var(--cyan);
+
   color: #001014;
+
 }
+
 
 button.danger {
+
   border-color: var(--red);
+
   color: var(--red);
+
 }
+
 
 button.danger:hover {
+
   background: var(--red);
+
   color: #120006;
+
 }
 
+
+/* =========================================================
+   HEADER 1
+   ========================================================= */
+
 .header1 {
+
   position: fixed;
 
   top: 0;
+
   left: 0;
 
   width: 100%;
-  height: var(--header-height);
+
+  height: var(--header1-height);
 
   z-index: 100;
 
@@ -120,43 +167,61 @@ button.danger:hover {
     1px solid var(--cyan);
 
   background:
-    rgba(2, 8, 10, 0.96);
+    rgba(2, 8, 10, 0.98);
 
   box-shadow:
     0 0 18px
     rgba(0, 234, 255, 0.12);
+
 }
+
 
 .brand {
+
   display: flex;
+
   align-items: center;
+
   gap: 7px;
+
   white-space: nowrap;
+
 }
 
+
 .brand-main {
+
   color: var(--cyan);
 
   font-weight: bold;
 
   font-size:
     clamp(16px, 2vw, 24px);
+
 }
+
 
 .separator {
+
   color: var(--muted);
+
 }
 
+
 .brand-board {
+
   color: var(--text);
 
   font-weight: bold;
 
   font-size:
     clamp(14px, 1.8vw, 21px);
+
 }
 
+
 .control-title {
+
   color: var(--green);
 
   font-weight: bold;
@@ -169,110 +234,127 @@ button.danger:hover {
 
   font-size:
     clamp(12px, 1.5vw, 17px);
+
 }
 
+
 .header-actions {
+
   display: flex;
 
   justify-content: flex-end;
 
   gap: 8px;
+
 }
 
-main {
+
+/* =========================================================
+   HEADER 2
+   ========================================================= */
+
+.header2 {
+
   position: fixed;
 
-  top: var(--header-height);
+  top: var(--header1-height);
+
   left: 0;
 
   width: 100%;
 
-  height:
-    calc(
-      100vh -
-      var(--header-height) -
-      var(--footer-height)
-    );
+  height: var(--header2-height);
 
-  overflow: hidden;
-}
+  z-index: 90;
 
-.status-panel {
-  position: absolute;
+  display: grid;
 
-  z-index: 20;
+  grid-template-columns:
+    100px
+    1fr
+    auto;
 
-  top: 4vh;
-  left: 4vw;
+  align-items: center;
 
-  width:
-    min(
-      340px,
-      30vw
-    );
+  gap: 20px;
 
-  padding: 18px;
+  padding:
+    12px 20px;
 
-  border:
-    1px solid var(--cyan);
+  border-bottom:
+    1px solid var(--border);
 
   background:
-    var(--panel);
+    rgba(3, 12, 15, 0.98);
 
-  box-shadow:
-    0 0 25px
-    rgba(0, 234, 255, 0.10);
 }
 
-.panel-title {
-  margin-bottom: 15px;
+
+.status-title {
 
   color: var(--cyan);
 
-  font-size:
-    clamp(15px, 1.5vw, 20px);
-
   font-weight: bold;
 
-  letter-spacing: 4px;
+  font-size: 16px;
+
+  letter-spacing: 3px;
+
 }
 
-.status-content {
+
+.status-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        120px,
+        1fr
+      )
+    );
+
+  gap: 10px;
+
+  min-width: 0;
+
+}
+
+
+.status-item {
+
   display: flex;
 
   flex-direction: column;
 
-  gap: 8px;
-}
+  gap: 5px;
 
-.status-row {
-  display: grid;
-
-  grid-template-columns:
-    60px
-    1fr;
-
-  gap: 12px;
-
-  align-items: baseline;
+  min-width: 0;
 
   padding:
-    7px 0;
+    7px 10px;
 
-  border-bottom:
-    1px solid
-    rgba(18, 64, 74, 0.65);
+  border-left:
+    1px solid var(--border);
+
 }
+
 
 .status-label {
+
   color: var(--muted);
 
-  font-size: 10px;
+  font-size: 9px;
 
   letter-spacing: 1px;
+
 }
 
-.status-row strong {
+
+.status-item strong {
+
   color: var(--text);
 
   font-size: 12px;
@@ -282,12 +364,16 @@ main {
   text-overflow: ellipsis;
 
   white-space: nowrap;
+
 }
 
-.connection-status {
-  margin-top: 14px;
 
-  padding: 8px;
+.connection-status {
+
+  min-width: 90px;
+
+  padding:
+    8px 10px;
 
   text-align: center;
 
@@ -296,35 +382,82 @@ main {
 
   color: var(--red);
 
-  font-size: 11px;
+  font-size: 10px;
 
-  letter-spacing: 2px;
+  letter-spacing: 1px;
+
 }
+
 
 .connection-status.online {
+
   color: var(--green);
 
-  border-color:
-    var(--green);
+  border-color: var(--green);
+
 }
 
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+main {
+
+  position: fixed;
+
+  top:
+    calc(
+      var(--header1-height)
+      +
+      var(--header2-height)
+    );
+
+  left: 0;
+
+  width: 100%;
+
+  height:
+    calc(
+      100vh
+      -
+      var(--header1-height)
+      -
+      var(--header2-height)
+      -
+      var(--footer-height)
+    );
+
+  padding: 18px;
+
+  overflow: hidden;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: flex-start;
+
+}
+
+
+/* =========================================================
+   WIFI
+   ========================================================= */
+
 .wifi-panel {
-  position: absolute;
 
-  z-index: 10;
-
-  top: 7vh;
-  right: 5vw;
+  position: relative;
 
   width:
     min(
-      720px,
-      65vw
+      1100px,
+      100%
     );
 
-  height: 78vh;
+  height: 100%;
 
-  padding: 22px;
+  padding: 20px;
 
   border:
     1px solid var(--cyan);
@@ -332,35 +465,77 @@ main {
   background:
     var(--panel-light);
 
+  box-shadow:
+    0 0 30px
+    rgba(
+      0,
+      234,
+      255,
+      0.08
+    );
+
   overflow-y: auto;
+
   overflow-x: hidden;
 
-  box-shadow:
-    0 0 35px
-    rgba(0, 234, 255, 0.08);
 }
 
-.scan-bar {
-  position: absolute;
 
-  top: 17px;
-  right: 20px;
+.panel-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 12px;
+
+  border-bottom:
+    1px solid var(--border);
+
 }
+
+
+.panel-title {
+
+  color: var(--cyan);
+
+  font-size: 17px;
+
+  font-weight: bold;
+
+  letter-spacing: 4px;
+
+}
+
 
 .scan-button {
-  min-width: 90px;
 
   color: var(--green);
 
-  border-color:
-    var(--green);
+  border-color: var(--green);
+
+  min-width: 90px;
+
 }
+
+
+/* =========================================================
+   NETWORK SECTIONS
+   ========================================================= */
 
 .network-section {
-  margin-top: 22px;
+
+  margin-top: 20px;
+
 }
 
+
 .section-title {
+
   margin-bottom: 9px;
 
   padding-bottom: 7px;
@@ -373,17 +548,23 @@ main {
   font-size: 11px;
 
   letter-spacing: 2px;
+
 }
 
+
 .network-list {
+
   display: flex;
 
   flex-direction: column;
 
   gap: 7px;
+
 }
 
+
 .empty-network {
+
   padding: 13px;
 
   border:
@@ -394,21 +575,29 @@ main {
   font-size: 11px;
 
   text-align: center;
+
 }
 
+
+/* =========================================================
+   NETWORK ROW
+   ========================================================= */
+
 .network-item {
+
   display: grid;
 
   grid-template-columns:
-    minmax(0, 1fr)
+    minmax(160px, 1fr)
     90px
-    auto;
+    minmax(180px, 240px)
+    70px;
 
   gap: 10px;
 
   align-items: center;
 
-  min-height: 46px;
+  min-height: 48px;
 
   padding:
     7px 9px;
@@ -417,17 +606,33 @@ main {
     1px solid var(--border);
 
   background:
-    rgba(0, 0, 0, 0.25);
+    rgba(
+      0,
+      0,
+      0,
+      0.25
+    );
+
 }
 
+
 .network-item:hover {
+
   border-color: var(--cyan);
 
   background:
-    rgba(0, 234, 255, 0.04);
+    rgba(
+      0,
+      234,
+      255,
+      0.04
+    );
+
 }
 
+
 .network-name {
+
   overflow: hidden;
 
   text-overflow: ellipsis;
@@ -437,176 +642,114 @@ main {
   color: var(--text);
 
   font-size: 12px;
+
 }
 
+
 .network-rssi {
+
   color: var(--muted);
 
   text-align: right;
 
   font-size: 11px;
+
 }
 
-.network-save {
-  min-width: 60px;
 
-  padding:
-    6px 9px;
+.network-password {
 
-  color: var(--green);
-
-  border-color:
-    var(--green);
-}
-
-.network-delete {
-  min-width: 60px;
-
-  padding:
-    6px 9px;
-
-  color: var(--red);
-
-  border-color:
-    var(--red);
-}
-
-.network-priority {
-  color: var(--green);
-
-  font-size: 9px;
-
-  letter-spacing: 1px;
-}
-
-.password-panel {
-  position: absolute;
-
-  z-index: 50;
-
-  top: 50%;
-  left: 50%;
-
-  transform:
-    translate(-50%, -50%);
-
-  width:
-    min(
-      420px,
-      85vw
-    );
-
-  padding: 22px;
-
-  border:
-    1px solid var(--green);
-
-  background:
-    rgba(2, 9, 12, 0.98);
-
-  box-shadow:
-    0 0 40px
-    rgba(0, 255, 153, 0.15);
-}
-
-.hidden {
-  display: none;
-}
-
-.selected-network {
-  display: flex;
-
-  justify-content: space-between;
-
-  gap: 15px;
-
-  padding: 10px;
-
-  margin-bottom: 15px;
-
-  border:
-    1px solid var(--border);
-}
-
-.selected-network span {
-  color: var(--muted);
-
-  font-size: 10px;
-}
-
-.selected-network strong {
-  color: var(--green);
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-}
-
-label {
-  display: block;
-
-  margin-bottom: 6px;
-
-  color: var(--muted);
-
-  font-size: 10px;
-
-  letter-spacing: 1px;
-}
-
-input {
   width: 100%;
 
-  padding: 11px;
+  height: 32px;
+
+  padding:
+    6px 8px;
 
   border:
     1px solid var(--border);
 
   outline: none;
 
-  background: #010708;
+  background:
+    #010708;
 
   color: var(--text);
 
-  font-size: 13px;
+  font-size: 11px;
+
 }
 
-input:focus {
-  border-color:
-    var(--cyan);
+
+.network-password:focus {
+
+  border-color: var(--cyan);
+
 }
 
-.save-button {
-  margin-top: 14px;
 
-  color: var(--green);
-
-  border-color:
-    var(--green);
-}
-
-.cancel-button {
-  margin-top: 14px;
-
-  margin-left: 7px;
+.network-password::placeholder {
 
   color: var(--muted);
 
-  border-color:
-    var(--border);
 }
 
+
+.network-save {
+
+  min-width: 65px;
+
+  padding:
+    7px 8px;
+
+  color: var(--green);
+
+  border-color: var(--green);
+
+}
+
+
+.network-delete {
+
+  min-width: 65px;
+
+  padding:
+    7px 8px;
+
+  color: var(--red);
+
+  border-color: var(--red);
+
+}
+
+
+.network-priority {
+
+  color: var(--green);
+
+  font-size: 9px;
+
+  letter-spacing: 1px;
+
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
 footer {
+
   position: fixed;
 
   z-index: 100;
 
   bottom: 0;
+
   left: 0;
 
   width: 100%;
+
   height: var(--footer-height);
 
   display: flex;
@@ -621,197 +764,367 @@ footer {
     1px solid var(--border);
 
   background:
-    rgba(2, 8, 10, 0.96);
+    rgba(
+      2,
+      8,
+      10,
+      0.98
+    );
 
   color: var(--muted);
 
   font-size: 10px;
 
   letter-spacing: 1px;
+
 }
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 900px) {
 
+  :root {
+
+    --header1-height: 58px;
+
+    --header2-height: 130px;
+
+  }
+
+
   .header1 {
+
     grid-template-columns:
       1fr
       auto;
 
-    height: 62px;
   }
+
 
   .control-title {
+
     display: none;
+
   }
 
-  .status-panel {
-    top: 3vh;
-    left: 3vw;
 
-    width: 38vw;
+  .header2 {
+
+    grid-template-columns:
+      80px
+      1fr;
+
+    grid-template-rows:
+      1fr
+      auto;
+
+    gap:
+      8px 15px;
+
   }
 
-  .wifi-panel {
-    top: 5vh;
-    right: 3vw;
 
-    width: 63vw;
+  .status-grid {
+
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(
+          90px,
+          1fr
+        )
+      );
+
+  }
+
+
+  .connection-status {
+
+    grid-column: 2;
+
+    justify-self: start;
+
+  }
+
+
+  .network-item {
+
+    grid-template-columns:
+      minmax(130px, 1fr)
+      75px
+      minmax(140px, 1fr)
+      65px;
+
   }
 
 }
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 600px) {
 
   :root {
-    --header-height: 54px;
+
+    --header1-height: 54px;
+
+    --header2-height: 170px;
+
     --footer-height: 30px;
+
   }
+
 
   .header1 {
-    padding: 0 8px;
 
-    grid-template-columns:
-      1fr
-      auto;
+    padding:
+      0 8px;
 
     gap: 5px;
+
   }
+
 
   .brand-main {
+
     font-size: 14px;
+
   }
+
 
   .brand-board {
+
     font-size: 12px;
+
   }
+
 
   .header-actions {
+
     gap: 3px;
+
   }
 
+
   .header-actions button {
-    padding: 7px 5px;
+
+    padding:
+      7px 5px;
 
     font-size: 8px;
 
     letter-spacing: 0;
+
   }
 
-  .status-panel {
-    top: 2vh;
-    left: 3vw;
 
-    width: 57vw;
+  .header2 {
 
-    padding: 11px;
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    padding:
+      8px 10px;
+
   }
 
-  .panel-title {
-    margin-bottom: 9px;
+
+  .status-title {
 
     font-size: 12px;
 
     letter-spacing: 2px;
+
   }
 
-  .status-row {
+
+  .status-grid {
+
+    display: grid;
+
     grid-template-columns:
-      42px
-      1fr;
+      1fr 1fr;
 
-    gap: 6px;
+    gap: 5px;
 
-    padding: 5px 0;
   }
+
+
+  .status-item {
+
+    padding:
+      4px 7px;
+
+  }
+
 
   .status-label {
-    font-size: 8px;
+
+    font-size: 7px;
+
   }
 
-  .status-row strong {
+
+  .status-item strong {
+
     font-size: 9px;
+
   }
+
 
   .connection-status {
-    margin-top: 8px;
 
-    padding: 6px;
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 5px;
 
     font-size: 8px;
+
   }
+
+
+  main {
+
+    padding: 10px;
+
+  }
+
 
   .wifi-panel {
-    top: 10vh;
 
-    left: 6vw;
+    width: 100%;
 
-    right: auto;
+    height: 100%;
 
-    width: 91vw;
+    padding: 12px;
 
-    height: 77vh;
-
-    padding: 13px;
   }
 
-  .scan-bar {
-    top: 9px;
 
-    right: 11px;
+  .panel-title {
+
+    font-size: 13px;
+
+    letter-spacing: 2px;
+
   }
+
 
   .scan-button {
+
     min-width: 60px;
 
     padding: 6px;
 
     font-size: 8px;
+
   }
+
 
   .network-section {
-    margin-top: 16px;
+
+    margin-top: 14px;
+
   }
+
 
   .network-item {
+
     grid-template-columns:
-      minmax(0, 1fr)
-      58px
-      auto;
+      minmax(100px, 1fr)
+      55px;
 
-    gap: 5px;
+    gap: 6px;
 
-    min-height: 41px;
+    padding: 7px;
 
-    padding: 5px;
   }
+
 
   .network-name {
+
     font-size: 10px;
+
   }
+
 
   .network-rssi {
-    font-size: 9px;
+
+    font-size: 8px;
+
+    text-align: right;
+
   }
 
-  .network-save,
+
+  .network-password {
+
+    grid-column:
+      1 / 2;
+
+    width: 100%;
+
+    height: 32px;
+
+    font-size: 9px;
+
+  }
+
+
+  .network-save {
+
+    grid-column:
+      2;
+
+    grid-row:
+      2;
+
+    min-width: 50px;
+
+    padding: 6px;
+
+    font-size: 8px;
+
+  }
+
+
   .network-delete {
-    min-width: 48px;
+
+    grid-column:
+      2;
+
+    grid-row:
+      1;
+
+    min-width: 50px;
 
     padding: 5px;
 
     font-size: 8px;
+
   }
 
-  .password-panel {
-    width: 84vw;
-
-    padding: 15px;
-  }
 
   footer {
+
     font-size: 7px;
 
     gap: 4px;
+
   }
 
 }
